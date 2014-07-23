@@ -1,66 +1,51 @@
 #include<iostream>
 using namespace std;
-static int number=0;//номера клеток для построения дерева
 class Cell{//класс клеток зоопарка
 public:
-    int number;
-    string name;
-    Cell(): number(0){}
-    Cell(int n, string s):number(n), name(s){}
+    int num;//номер клетки
+    Cell(): num(0){}
+    Cell(int n):num(n){ cout<<"Object Cell created:"<< num<<"\n";}
+    void addCell(int num);
     virtual ~Cell(){};
 };
-class Tree{ //клас построения списка поиска клетки
-public:
-    int count;//количество ветвлений, уровней дерева
-    Tree* p1;
-    Tree* p2;
-    Tree(): count(0){}
-    Tree(int n): count(n){}
-    virtual void add(int n);
-    virtual void remove();
-    virtual ~Tree(){};
-};
-void Tree::add(int n){
-    if(n==1){
-        p1=NULL;
-        p2=NULL;}
-    else{
-        p1=new Tree(n-1); cout<<"Object created:"<< number<<"\n";
-        p2=new Tree(n-1);cout<<"Object created:"<< number<<"\n";}
-    number++;
-};
-void Tree::remove(){
-    delete p1;cout<<"Object deleted:"<< number<<"\n";
-    delete p2;cout<<"Object deleted:"<< number<<"\n";
-};
-class Visitor{//посетитель зоопарка
-public:
-    string name;
-    int age;
-    Visitor(){}
-    Visitor(string n, int a): name(n), age(a){}
-    virtual void parse(Tree&){}
-    virtual ~Visitor(){};
-};
-class Compiler{//класс представляющий интерфейс для доступа к системе зоопарка
-public:
-    virtual void compile(int number);//number- количество требуемых клеток
-};
-void Compiler::compile(int number){
-    Visitor person;
-    int num=number;
-    for(int i=0; i<=num; number--){
-        new Cell(i, "cell"+i);
-        i++;
+void Cell::addCell(int num){
+        while(num>0){
+        new Cell(num);
         num--;}
-    Tree tre(number);
-
+};
+class Pet{ //клас животных зоопарка
+    public:
+    int numberCell;//номер клетки
+    Pet(): numberCell(0){}
+    Pet(int n):numberCell(n){ cout<<"Object Pet created:"<< numberCell<<"\n";}
+    void addPet(int num);
+    virtual ~Pet(){};
+};
+void Pet::addPet(int num){
+      while(num>0){
+        new Pet(num);
+        num--;}
+}
+class Compiler{//класс генерации зоопарка
+private:
+    int number;//number- количество питомцев
+public:
+    Compiler(int n):number(n){}
+    virtual void compile();
+};
+void Compiler::compile(){
+    Pet pet;
+    pet.addPet(number);
+    Cell cell;
+    cell.addCell(number);
 }
 int main(void){
-    Compiler newCompile;
+    int num;//количество питомцев зоопарка
     cout<<"how many cells the zoo?";
-    cin>>number;
-    getchar();
+    cin>>num;
+    Compiler newCompile(num);
+    newCompile.compile();
+    getchar();// нажатие
+    getchar();// вывод
     return 0;
 }
-
