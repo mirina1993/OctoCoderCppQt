@@ -16,7 +16,6 @@ void functionList(list<int> &list1,list<int> &list2,int num){//передаём 
     for(iter=list1.begin();iter!=list1.end();iter++){
         cout<<""<< *iter<<endl;
     }
-    getchar();
 }
 int main(void){
     list<int> list1;//создаём список из элементв типа int
@@ -26,6 +25,9 @@ int main(void){
     cin>>number;
     //заполнение данными и печать списка
     functionList(list1, list2, number);
+    //очистим оба контейнера
+    list1.clear();
+    list2.clear();
     getchar();
     return 0;
 }

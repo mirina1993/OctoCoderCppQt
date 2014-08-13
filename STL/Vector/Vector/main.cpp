@@ -17,6 +17,8 @@ void testVector(){//последовательный контейнер вект
     //вывод значений
     for(int i=0;i<v.size()/*метод контейнера*/;i++)
         cout<<"Create element konteiner VECTOR:"<<v[i]<<"\n";
+    //очистим последовательный контейнер
+    v.clear();
 }
 void testAsso(){//ассоциативный контейнер отображения
     string Town;
@@ -40,6 +42,8 @@ void testAsso(){//ассоциативный контейнер отображе
         cout<<(*iter).first<<endl;
     getchar();
     }
+    //очистим ассоциативный контейнер
+    mapTown.clear();
 }
 int main(void){
     testVector();//реализация последовательного контейнера и его методов
