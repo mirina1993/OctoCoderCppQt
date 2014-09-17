@@ -4,7 +4,14 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core
+
+QT       += gui
+QT       += widgets
+QT       += network
+TARGET = MyTCPserver
+CONFIG   += console
+CONFIG   -= app_bundle
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -12,9 +19,8 @@ TARGET = MyClient
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-        mainwindow.cpp
+SOURCES += main.cpp \
+    MyClient.cpp
 
-HEADERS  += mainwindow.h
-
-FORMS    += mainwindow.ui
+HEADERS  += \
+    MyClient.h
