@@ -3,6 +3,9 @@
 #include<QApplication>
 #include <QApplication>
 #include <QWidget>
+#include<QPaintDevice>//QWidget
+#include<QBoxLayout>
+#include<QFrame>//QLabel
 #include<QObject>
 #include<QLabel>
 #include<QPushButton>
