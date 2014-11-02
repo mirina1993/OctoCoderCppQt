@@ -1,0 +1,98 @@
+clear all;
+close all;
+%read signal from file
+fid=fopen('beacon1.sig', 'r');
+x=fread(fid);
+format short;
+
+% split to Re and Im parts
+k=size(x);
+j=1;i=1;
+for k_index=1:1:k(1)
+    if (rem(k_index,2)==1)
+        re(j)=x(k_index);
+        j=j+1;
+    else
+        im(i)=x(k_index);
+        i=i+1; 
+    end;  
+    %k_index=k_index+1;
+end;
+
+% create complex signal and plot its biginning
+signal=complex(re,im);
+amp=abs(signal);
+plot(amp(1:200));
+
+% signal bpsk demodulation
+signal_demod=pskdemod(signal,4);
+scatterplot(signal_demod);
+
+% demodulate manually for test
+fi=ceil(atan(im./re)/(2*pi));
+scatterplot(fi);
+
+% compare results
+ber_my=mod(signal_demod-fi,2);
+
+% create Walsh matrix 64x64
+x=1;
+N=6;%log walsh matrix dimension
+for i=1:1:N
+    temp=x;
+    x=[temp temp;temp -temp];
+    i=i+1;
+end
+
+%convert signal to bipolar form
+for l=1:1:10000
+    if (signal_demod(l)==0)
+        deWalsh(l)=-1;
+    else deWalsh(l)=1;
+    end;
+end;
+
+%cut first 64*n rows
+last=10000-mod(10000,64);
+deWalsh=deWalsh(1:last);
+deWalsh=vec2mat(deWalsh,64);
+
+ %Walsh_row_index=1
+ %   for Walsh_sequence_number=1:1:64
+ %       if deWalsh(Walsh_row_index,:)==x(Walsh_sequence_number,:)
+ %           output(Walsh_row_index)= Walsh_sequence_number;
+ %       else output(Walsh_row_index)=0;    
+ %      end;
+ %   end;
+ 
+ output=corr(deWalsh',x');
+ for i=1:1:64
+ [max_corr, num_of_sequence]=max(output(i,:));
+ m(i)=max_corr;
+ n(i)=num_of_sequence;
+ end;
+ 
+ sig1=de2bi(n);
+ sig1=sig1(:);
+num_of_errors=0;
+
+tr1=poly2trellis(9,[753 561]);
+%code1=convenc(sig1,tr1);
+decode1=vitdec(sig1,tr1,5,'trunc','hard');
+
+
+
+
+
+
+
+ 
+ 
+ 
+
+
+
+
+
+
+

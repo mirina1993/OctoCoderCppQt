@@ -1,0 +1,122 @@
+clear all;
+close all;
+%read signal from file
+fid=fopen('beacon1ch .sig', 'r');
+x=fread(fid,'int16');
+format short;
+
+% split to Re and Im parts
+k=size(x);
+j=1;i=1;
+for k_index=1:1:k(1)
+    if (rem(k_index,2)==1)
+        re(j)=x(k_index);
+        j=j+1;
+    else
+        im(i)=x(k_index);
+        i=i+1; 
+    end;  
+    %k_index=k_index+1;
+end;
+
+% create complex signal and plot its beginning
+signal=complex(re,im);
+amp=abs(signal);
+plot(amp(1:200));
+
+% signal bpsk demodulation
+signal_demod=pskdemod(signal,2);
+scatterplot(signal_demod);
+
+%
+ PRS=[1   1   1   1   1   1  -1  -1  -1  -1   1   1   1   1  -1   1   1   1  -1  -1  -1  -1   1  -1   1   1  -1  -1   1   1  -1   1 
+        1  -1   1   1   1   1  -1   1  -1  -1  -1  -1   1   1   1  -1  -1   1   1  -1  -1  -1  -1   1  -1  -1   1  -1  -1  -1   1  -1 
+        1  -1   1   1   1  -1   1  -1   1   1   1   1  -1  -1   1  -1  -1   1  -1   1   1   1  -1  -1   1   1   1  -1  -1  -1  -1  -1 
+        -1   1   1   1  -1   1   1   1  -1   1  -1  -1   1   1   1   1  -1   1  -1   1  -1  -1   1  -1   1  -1  -1  -1  -1  -1  -1   1 
+        -1   1  -1   1  -1   1  -1   1   1   1   1   1  -1   1  -1   1   1  -1   1  -1  -1  -1  -1  -1   1   1  -1   1   1   1  -1   1 
+        1  -1   1   1  -1   1  -1   1   1  -1  -1  -1  -1  -1   1  -1   1   1   1  -1   1   1   1   1   1  -1  -1  -1   1   1   1   1 
+        -1  -1   1   1  -1   1  -1  -1   1   1  -1   1  -1   1   1   1  -1  -1  -1   1   1  -1   1  -1  -1  -1   1  -1   1   1   1   1 
+        1   1   1  -1   1  -1  -1   1  -1   1   1  -1  -1  -1   1  -1   1  -1  -1   1   1  -1  -1  -1   1   1  -1  -1  -1  -1  -1  -1 
+        -1   1   1  -1  -1   1   1  -1  -1   1  -1   1  -1   1   1  -1  -1   1  -1  -1   1   1   1   1   1   1  -1   1   1  -1   1  -1 
+        -1   1  -1  -1   1  -1  -1   1   1  -1   1   1   1   1   1   1  -1  -1   1  -1   1   1  -1   1  -1   1  -1  -1  -1  -1   1  -1 
+        1  -1  -1  -1   1  -1  -1   1   1   1  -1   1   1  -1  -1   1  -1   1   1   1   1  -1   1   1  -1  -1  -1  -1   1   1  -1   1 
+        -1   1  -1   1  -1  -1   1   1   1  -1  -1   1  -1  -1  -1  -1   1   1  -1  -1  -1   1  -1  -1  -1  -1   1  -1  -1  -1  -1  -1 
+        -1  -1  -1   1  -1  -1  -1   1  -1  -1  -1   1   1  -1  -1   1  -1  -1  -1   1   1   1  -1   1  -1   1  -1   1   1  -1   1   1 
+        -1  -1  -1   1   1   1  -1  -1  -1   1  -1  -1   1  -1   1  -1   1  -1  -1  -1   1   1  -1   1   1  -1  -1   1   1   1   1   1 
+        -1  -1   1   1   1   1  -1  -1  -1   1  -1   1   1  -1   1   1   1  -1  -1   1  -1   1  -1  -1   1  -1  -1  -1  -1  -1   1  -1 
+        -1   1   1  -1  -1   1   1   1  -1   1  -1  -1  -1   1   1   1   1   1  -1   1   1   1   1  -1  -1  -1  -1  -1   1   1   1  1];
+    PRS=PRS(:);
+    
+
+% demodulate manually for test
+fi=ceil(atan(im./re)/(2*pi));
+scatterplot(fi);
+
+% compare results
+ber_my=mod(signal_demod-fi,2);
+
+% create Walsh matrix 64x64
+x=1;
+N=6;%log walsh matrix dimension
+for i=1:1:N
+    temp=x;
+    x=[temp temp;temp -temp];
+    i=i+1;
+end
+
+%convert signal to bipolar form
+for l=1:1:length(signal_demod)
+    if (signal_demod(l)==0)
+       deWalsh(l)=-1;
+    else deWalsh(l)=1;
+    end;
+end;
+% find packet start
+for k=1:1:length(signal)-511
+    corr_PRS(k)=corr(signal(k:k+511)',PRS);
+end
+    [start,position]=max(corr_PRS);
+    %remove PRS from packet
+    packet_noised_with_PRS=deWalsh(position+511:length(deWalsh));
+    %zero pad the packet's tail
+    packet_noised_with_PRS_matrix=vec2mat(packet_noised_with_PRS,512);
+    
+ 
+for p=1:1:9
+    packet_clean(p,:)=packet_noised_with_PRS_matrix(p,:).*PRS'
+end;
+ 
+%convert to 64 columns matrix
+packet_clean_matrix=vec2mat(packet_clean,64);
+packet_to_decode_matrix=packet_clean_matrix(1:24,:)
+
+ 
+ packet_deWalsh_matrix=corr(packet_to_decode_matrix',x');
+ for i=1:1:24
+ [max_corr(i), num_of_sequence(i)]=max(packet_deWalsh_matrix(i,:));
+  end;
+ 
+ sig1=de2bi(num_of_sequence-1);
+ sig1=sig1(:);
+num_of_errors=0;
+
+tr1=poly2trellis(9,[753 561]);
+%code1=convenc(sig1,tr1);
+decode1=vitdec(sig1,tr1,5,'trunc','hard');
+
+
+
+
+
+
+
+ 
+ 
+ 
+
+
+
+
+
+
+
