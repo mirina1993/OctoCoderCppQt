@@ -21,6 +21,6 @@ QDomElement contact(QDomDocument& domDoc,
                     const QString& strEmail);
 QDomElement makeElement(QDomDocument& domDoc,
                        const QString& strName,
-                       const QString& strAttr=QString(""),
-                       const QString& strText=QString(""));
+                       const QString& strAttr,
+                       const QString& strText);
 #endif // MY_XML_H
